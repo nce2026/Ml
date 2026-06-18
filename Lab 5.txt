@@ -1,0 +1,23 @@
+import numpy as np
+import matplotlib.pyplot as plt
+from sklearn.neighbors import KNeighborsClassifier
+x_values=np.random.rand(100).reshape(-1,1)
+labels=np.array([1 if x<=0.5 else 2 for x in x_values[:50]])
+X_train,y_train=x_values[:50],labels
+X_test=x_values[50:]
+k_values=[1,2,3,4,5,20,30]
+for k in k_values:
+    knn=KNeighborsClassifier(n_neighbors=k)
+    knn.fit(X_train,y_train)
+    y_pred=knn.predict(X_test)
+    print(f'k={k}')
+    for i,(x_val,pred)in enumerate(zip(X_train,y_pred),start=51):
+        print(f'point{i}:x={x_val[0]:.4f},class={pred}')
+    print()
+    plt.figure()
+    plt.scatter(X_train,y_train,color='blue',label='Training data')
+    plt.scatter(X_train,y_pred,color='red',label='Classified Test data')
+    plt.xlabel("X values")
+    plt.ylabel("class")
+    plt.legend()
+    plt.show()

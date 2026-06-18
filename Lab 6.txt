@@ -1,0 +1,33 @@
+import matplotlib.pyplot as plt 
+from sklearn.datasets import fetch_california_housing 
+from sklearn.model_selection import train_test_split 
+from sklearn.preprocessing import StandardScaler 
+import numpy as np 
+def locally_weighted_linear_regression(X,Y,tau): 
+    m=len(X) 
+    predictions=np.zeros(m) 
+    X_b=np.c_[np.ones((m,1)),X] 
+    for i in range(m): 
+        W=np.eye(m)*np.exp(-np.sum((X-X[i])**2,axis=1)/(2*tau**2)) 
+        theta=np.linalg.lstsq(X_b.T @ W @ X_b,X_b.T @ W @ Y,rcond=None)[0] 
+        predictions[i]=X_b[i]@ theta 
+    return predictions 
+data=fetch_california_housing() 
+X=data.data[:,0] 
+Y=data.target 
+scaler=StandardScaler() 
+X_scaled=scaler.fit_transform(X.reshape(-1,1)) 
+X_scaled=X_scaled[:200] 
+Y=Y[:200] 
+X_train,X_test,Y_train,Y_test=train_test_split(X_scaled,Y,test_size=0.2,random_state=42) 
+tau=0.5 
+train_predictions=locally_weighted_linear_regression(X_train,Y_train,tau) 
+plt.figure(figsize=(10,6)) 
+plt.scatter(X_train,Y_train,color='palegreen',label='Training data') 
+plt.scatter(X_test,Y_test,color='black',label='Test data')  
+plt.plot(np.sort(X_train.flatten()),locally_weighted_linear_regression(np.sort(X_train.flatten()).reshape(-1,1),Y_train,tau),color='red',label='Locally Weighted Regression') 
+plt.legend() 
+plt.xlabel('Median Income') 
+plt.ylabel('House Value (in thousands)') 
+plt.title('Locally Weighted Linear Regression on California Housing Dataset') 
+plt.show()
